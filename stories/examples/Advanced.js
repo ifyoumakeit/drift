@@ -55,7 +55,6 @@ export default () => (
         <footer>
           <button
             type="button"
-            isLeft
             onClick={() => goToSlide(index - 1)}
             disabled={index === 0}
             children="Previous"
@@ -76,7 +75,6 @@ export default () => (
           ))}
           <button
             type="button"
-            isRight
             onClick={() => goToSlide(index + 1)}
             disabled={index >= indexLast}
             children="Next"

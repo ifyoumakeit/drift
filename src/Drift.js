@@ -21,13 +21,10 @@ class Drift extends React.Component {
 
   constructor(props) {
     super(props);
-
-    this.slides = [];
-    this.dragStart = { x: 0, y: 0 };
-    this.dragEnd = { x: 0, y: 0 };
-
-    this.bindHandlers();
+    this.setup();
+    this.bind();
     this.state = {
+      dragging: false,
       index: 0,
       indexLast: 0
     };
@@ -38,15 +35,17 @@ class Drift extends React.Component {
    */
 
   componentDidMount() {
-    this.setState({ indexLast: this.indexLast });
-
+    this.setState({ indexLast: this.indexLastFromKeys });
     window.addEventListener("keydown", this.handleKeyDown);
   }
 
+  componentWillMount() {
+    window.removeEventListener("keydown", this.handleKeyDown);
+  }
+
   componentDidUpdate(prevProps, prevState) {
-    if (this.indexLast !== this.indexLast) {
-      // Update last index if slides change.
-      this.setState({ indexLast: this.indexLast });
+    if (this.state.indexLast !== this.indexLastFromKeys) {
+      this.setState({ indexLast: this.indexLastFromKeys });
     }
 
     if (this.state.index !== prevState.index) {
@@ -55,7 +54,7 @@ class Drift extends React.Component {
     }
   }
 
-  bindHandlers() {
+  bind() {
     this.handleDragMove = this.handleDragMove.bind(this);
     this.handleDragStart = this.handleDragStart.bind(this);
     this.handleDragEnd = this.handleDragEnd.bind(this);
@@ -68,18 +67,19 @@ class Drift extends React.Component {
     this.goToSlide = this.goToSlide.bind(this);
   }
 
-  getDragXY(event) {
-    const coords = event.touches ? event.touches[0] : event;
-    return { x: coords.pageX || 0, y: coords.pageY || 0 };
+  setup() {
+    this.keys = [];
+    this.dragStart = { x: 0, y: 0 };
+    this.dragEnd = { x: 0, y: 0 };
   }
 
   /**
    * Getters
    */
 
-  get indexLast() {
-    // Get index of last slide.
-    return this.slides.length - 1;
+  get indexLastFromKeys() {
+    // Get index of last slide from
+    return this.keys.length - 1;
   }
 
   get swipeDirection() {
@@ -129,12 +129,12 @@ class Drift extends React.Component {
   }
 
   handleDragStart(event) {
-    this.dragStart = this.getDragXY(event);
+    this.dragStart = this.normalizeEvent(event);
     this.setState({ dragging: true });
   }
 
   handleDragMove(event) {
-    this.dragEnd = this.getDragXY(event);
+    this.dragEnd = this.normalizeEvent(event);
     if (this.isPastDragThreshold) {
       event.stopPropagation();
       this.setState({ dragging: false });
@@ -154,8 +154,13 @@ class Drift extends React.Component {
    * Normalizers.
    */
 
+  normalizeEvent(event) {
+    const coords = event.touches ? event.touches[0] : event;
+    return { x: coords.pageX || 0, y: coords.pageY || 0 };
+  }
+
   normalizeIndex(index) {
-    return Math.max(0, Math.min(this.indexLast, index));
+    return Math.max(0, Math.min(this.state.indexLast, index));
   }
 
   normalizeAngle(angle) {
@@ -163,7 +168,7 @@ class Drift extends React.Component {
   }
 
   normalizeTranslateX(x) {
-    return Math.max(-100 * this.indexLast, Math.min(0, x));
+    return Math.max(-100 * this.state.indexLast, Math.min(0, x));
   }
 
   normalizeOffset(offset) {
@@ -200,10 +205,10 @@ class Drift extends React.Component {
     };
   }
 
-  propsSlide(id, style = {}) {
-    if (this.slides.indexOf(id) < 0) {
-      // A unique ID is needed to count slides.
-      this.slides.push(id);
+  propsSlide(key, style = {}) {
+    if (this.keys.indexOf(key) < 0) {
+      // A unique key is needed to count slides.
+      this.keys.push(key);
     }
 
     return {
@@ -224,7 +229,7 @@ class Drift extends React.Component {
   render() {
     return this.props.children({
       index: this.state.index,
-      indexLast: this.indexLast,
+      indexLast: this.state.indexLast,
       propsContainer: this.propsContainer,
       propsSlide: this.propsSlide,
       propsSlides: this.propsSlides,

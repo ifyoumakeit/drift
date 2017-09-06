@@ -8,14 +8,9 @@ export default () => (
         <div {...propsSlides()}>
           <div {...propsSlide("first")}>
             <img
-              alt="Typing at table"
-              src="https://unsplash.it/200/300?image=1"
-              width="50%"
-            />
-            <img
               alt="Computer with coffee"
-              src="https://unsplash.it/200/300?image=2"
-              width="50%"
+              src="https://unsplash.it/400/300?image=2"
+              width="100%"
             />
           </div>
 

@@ -166,7 +166,6 @@ export default () => (
         <Footer>
           <Button
             type="button"
-            isLeft
             onClick={() => goToSlide(index - 1)}
             disabled={index === 0}
             children="‹"
@@ -183,7 +182,6 @@ export default () => (
           </Dots>
           <Button
             type="button"
-            isRight
             onClick={() => goToSlide(index + 1)}
             disabled={index >= indexLast}
             children="›"
