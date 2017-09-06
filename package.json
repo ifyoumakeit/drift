@@ -4,7 +4,7 @@
   "description": "YARS > Yet Another React Slideshow",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 0",
     "react": "webpack --env=react",
     "preact": "webpack --env=preact",
     "storybook": "npm run react && start-storybook -p 6006 -c stories",
