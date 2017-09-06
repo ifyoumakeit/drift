@@ -77,6 +77,23 @@ const Footer = glamorous.footer({
   alignItems: "center"
 });
 
+const ImageWrapper = glamorous.div({
+  width: "50%"
+});
+
+const Images = glamorous.div({
+  display: "flex"
+});
+
+const Image = glamorous.img(
+  {
+    display: "block"
+  },
+  ({ width = "100%" }) => ({
+    width: width
+  })
+);
+
 export default () => (
   <Drift>
     {({
@@ -96,20 +113,24 @@ export default () => (
           <div {...propsSlides()}>
             <SlideWithCaption {...propsSlide("splash")}>
               <Caption>My cool caption</Caption>
-              <img
-                alt="Typing at table"
-                src="https://unsplash.it/200/300?image=1"
-                width="50%"
-              />
-              <img
-                alt="Computer with coffee"
-                src="https://unsplash.it/200/300?image=2"
-                width="50%"
-              />
+              <Images>
+                <ImageWrapper>
+                  <Image
+                    alt="Typing at table"
+                    src="https://unsplash.it/200/300?image=1"
+                  />
+                </ImageWrapper>
+                <ImageWrapper>
+                  <Image
+                    alt="Computer with coffee"
+                    src="https://unsplash.it/200/300?image=2"
+                  />
+                </ImageWrapper>
+              </Images>
             </SlideWithCaption>
 
             <div {...propsSlide("phone")}>
-              <img
+              <Image
                 alt="Looking at phone"
                 src="https://unsplash.it/400/300?image=3"
                 width="100%"
@@ -117,7 +138,7 @@ export default () => (
             </div>
 
             <div {...propsSlide("notes")}>
-              <img
+              <Image
                 alt="Taking notes with computer"
                 src="https://unsplash.it/400/300?image=4"
                 width="100%"
@@ -125,7 +146,7 @@ export default () => (
             </div>
 
             <div {...propsSlide("typing")}>
-              <img
+              <Image
                 alt="Typing at computer with closed notebook"
                 src="https://unsplash.it/400/300?image=5"
                 width="100%"
@@ -133,7 +154,7 @@ export default () => (
             </div>
 
             <div {...propsSlide("final")}>
-              <img
+              <Image
                 alt="Computer with empty glass to the left"
                 src="https://unsplash.it/400/300?image=6"
                 width="100%"

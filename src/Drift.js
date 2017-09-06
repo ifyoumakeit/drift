@@ -192,9 +192,9 @@ class Drift extends React.Component {
   propsSlides(style = {}) {
     return {
       style: {
-        whiteSpace: "noWrap",
         transition: `${this.props.duration} transform ${this.props.easingFn}`,
         transform: `translateX(${this.translateX}%)`,
+        display: "flex",
         ...style
       }
     };
@@ -209,8 +209,7 @@ class Drift extends React.Component {
     return {
       style: {
         width: "100%",
-        display: "inline-block",
-        whiteSpace: "normal",
+        flex: "0 0 100%",
         ...style
       }
     };
