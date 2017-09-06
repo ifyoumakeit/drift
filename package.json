@@ -1,17 +1,18 @@
 {
   "name": "drift",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "YARS > Yet Another React Slideshow",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "react": "webpack --env=react",
     "preact": "webpack --env=preact",
-    "storybook": "npm run react && start-storybook -p 6006 -c stories"
+    "storybook": "npm run react && start-storybook -p 6006 -c stories",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ifyoumakeit/drift.git"
+    "url": "https://github.com/ifyoumakeit/drift.git"
   },
   "author": "",
   "license": "ISC",
@@ -31,6 +32,7 @@
     "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.1",
     "jest": "^21.0.1",
-    "webpack": "^3.5.5"
+    "webpack": "^3.5.5",
+    "semantic-release": "^7.0.2"
   }
 }
