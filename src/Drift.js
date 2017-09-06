@@ -1,7 +1,7 @@
 import React from "react";
 
 /**
- * Image Slider
+ * 🏍 DRIFT A Image Slider
  * Uses unique IDs to help denote slides and keep count.
  */
 
