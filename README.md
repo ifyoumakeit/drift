@@ -1,2 +1,5 @@
-# drift
-YARS > Yet Another React Slideshow
+# 🏍 Drift
+## YARS > Yet Another React Slideshow
+
+- Uses Render Props
+
