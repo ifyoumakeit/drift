@@ -4,8 +4,8 @@ module.exports = (env = "react") => ({
   entry: "./src/",
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "Drift.js",
-    library: "calliope",
+    filename: "drift.js",
+    library: "drift",
     libraryTarget: "umd"
   },
   module: {

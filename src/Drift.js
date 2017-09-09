@@ -36,11 +36,6 @@ class Drift extends React.Component {
 
   componentDidMount() {
     this.setState({ indexLast: this.indexLastFromKeys });
-    window.addEventListener("keydown", this.handleKeyDown);
-  }
-
-  componentWillMount() {
-    window.removeEventListener("keydown", this.handleKeyDown);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -78,7 +73,7 @@ class Drift extends React.Component {
    */
 
   get indexLastFromKeys() {
-    // Get index of last slide from
+    // Get index of last slide.
     return this.keys.length - 1;
   }
 
@@ -187,6 +182,7 @@ class Drift extends React.Component {
       onTouchStart: this.handleDragStart,
       onTouchMove: this.handleDragMove,
       onTouchEnd: this.handleDragEnd,
+      onKeyDown: this.handleKeyDown,
       style: {
         overflow: "hidden",
         ...style
@@ -196,6 +192,7 @@ class Drift extends React.Component {
 
   propsSlides(style = {}) {
     return {
+      role: "list",
       style: {
         transition: `${this.props.duration} transform ${this.props.easingFn}`,
         transform: `translateX(${this.translateX}%)`,
@@ -212,6 +209,8 @@ class Drift extends React.Component {
     }
 
     return {
+      role: "list-item",
+      "aria-hidden": this.keys[this.state.index] !== key,
       style: {
         width: "100%",
         flex: "0 0 100%",
