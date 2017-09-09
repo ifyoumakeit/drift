@@ -1,5 +1,5 @@
 {
-  "name": "drift",
+  "name": "@warbyparker/drift",
   "version": "0.0.0-development",
   "description": "YARS > Yet Another React Slideshow",
   "main": "dist/drift.js",
@@ -8,18 +8,22 @@
     "react": "webpack --env=react",
     "preact": "webpack --env=preact",
     "storybook": "npm run react && start-storybook -p 6006 -c stories",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release":
+      "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ifyoumakeit/drift.git"
+  "url": "https://github.com/WarbyParker/drift.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ifyoumakeit/drift/issues"
+  "url": "https://github.com/WarbyParker/drift/issues"
   },
-  "homepage": "https://github.com/ifyoumakeit/drift#readme",
+"homepage": "https://github.com/WarbyParker/drift#readme",
+  "release": {
+    "verifyConditions": "condition-circle"
+  },
   "dependencies": {
     "react": "^15.6.1",
     "react-dom": "^15.6.1"
@@ -31,8 +35,9 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.1",
+    "condition-circle": "^1.5.0",
     "jest": "^21.0.1",
-    "webpack": "^3.5.5",
-    "semantic-release": "^7.0.2"
+    "semantic-release": "^7.0.2",
+    "webpack": "^3.5.5"
   }
 }
