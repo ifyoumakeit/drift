@@ -11,15 +11,6 @@ test("goToSlide will change index", () => {
   expect(childSpy).toHaveBeenLastCalledWith(expect.objectContaining({ index: 1 }));
 });
 
-test("goToSlide can increment index until max", () => {
-  const { Component, childSpy } = setup();
-  const wrapper = mount(<Component />);
-  const button = wrapper.find("button");
-  expect(childSpy).toHaveBeenLastCalledWith(expect.objectContaining({ index: 0 }));
-  button.simulate("click");
-  expect(childSpy).toHaveBeenLastCalledWith(expect.objectContaining({ index: 1 }));
-});
-
 function setup() {
   const childSpy = jest.fn(({ goToSlide, index, propsContainer, propsSlides, propsSlide }) => (
     <div>
@@ -31,7 +22,6 @@ function setup() {
       </div>
 
       <button onClick={() => goToSlide(2)}>Go to {index}</button>
-      <button onClick={() => goToSlide(index + 1)}>Increment</button>
     </div>
   ));
   return {
