@@ -27,7 +27,8 @@ class Drift extends React.Component {
       isDragging: false,
       isSliding: false,
       index: 0,
-      indexLast: 0
+      indexLast: 0,
+      width: 1
     };
   }
 
@@ -103,6 +104,10 @@ class Drift extends React.Component {
     return this.setState({ isSliding: false });
   }
 
+  handleResize() {
+    return this.setState({ width: this.container.offsetWidth });
+  }
+
   /**
    * Getters
    */
@@ -143,7 +148,8 @@ class Drift extends React.Component {
 
   get offset() {
     if (!this.state.dragStart || !this.state.dragEnd) return 0;
-    return this.normalizeOffset(this.state.dragEnd.x - this.state.dragStart.x);
+    const offset = this.state.dragEnd.x - this.state.dragStart.x;
+    if(offset > this.props)
   }
 
   get translateX() {
@@ -190,9 +196,9 @@ class Drift extends React.Component {
     if (!event.touches) event.preventDefault();
 
     //if (this.isPastDragThreshold) {
-      //this.setState({ isDragging: false, dragEnd: this.normalizeEvent(event) });
+    //this.setState({ isDragging: false, dragEnd: this.normalizeEvent(event) });
     //} else {
-      this.setState({ dragEnd: this.normalizeEvent(event) });
+    this.setState({ dragEnd: this.normalizeEvent(event) });
     //}
   }
 
