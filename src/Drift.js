@@ -14,8 +14,8 @@ class Drift extends React.Component {
     return {
       duration: "0.4s",
       easingFn: "ease-in-out",
-      dragMax: 100,
-      indexDidUpdate: (prevIndex, nextIndex) => {}
+      dragMax: 50,
+      indexWillUpdate: (prevIndex, nextIndex) => {}
     };
   }
 
@@ -25,6 +25,7 @@ class Drift extends React.Component {
     this.bind();
     this.state = {
       isDragging: false,
+      isSliding: false,
       index: 0,
       indexLast: 0
     };
@@ -41,26 +42,36 @@ class Drift extends React.Component {
     if (!this.container) return;
     container.addEventListener("transition", this.handleTransitionStart);
     container.addEventListener("transitionend", this.handleTransitionEnd);
+    window.addEventListener("resize", this.handleResize);
   }
 
   componentWillUnMount() {
     const { container } = this;
     container.removeEventListener("transition", this.handleTransitionStart);
     container.removeEventListener("transitionend", this.handleTransitionEnd);
+    window.addEventListener("resize", this.handleResize);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentWillUpdate(nextProps, nextState) {
     if (this.state.indexLast !== this.indexLastFromKeys) {
       this.setState({ indexLast: this.indexLastFromKeys });
     }
 
-    if (this.state.index !== prevState.index) {
+    if (this.state.index !== nextState.index) {
       // Notify that index has changed.
-      this.props.indexDidUpdate(prevState.index, this.state.index);
+      this.props.indexWillUpdate(nextState.index, this.state.index);
     }
 
-    if (this.isPastDragThreshold && !this.state.isDragging) {
-      this.setState({ index: this.nextIndex });
+    if (
+      this.isPastDragThreshold &&
+      !this.state.isDragging &&
+      !this.state.isSliding
+    ) {
+      console.log("Updating!");
+      this.setState({
+        index: this.nextIndex,
+        dragEnd: this.state.dragStart
+      });
     }
   }
 
@@ -72,6 +83,7 @@ class Drift extends React.Component {
       "handleKeyDown",
       "handleTransitionStart",
       "handleTransitionEnd",
+      "handleResize",
       "propsSlide",
       "propsSlides",
       "propsContainer",
@@ -81,8 +93,6 @@ class Drift extends React.Component {
 
   setup() {
     this.keys = [];
-    this.dragStart = { x: 0, y: 0 };
-    this.dragEnd = { x: 0, y: 0 };
   }
 
   handleTransitionStart() {
@@ -97,14 +107,27 @@ class Drift extends React.Component {
    * Getters
    */
 
+  get resetCoords() {
+    return {
+      dragStart: {
+        x: 0,
+        y: 0
+      },
+      dragEnd: {
+        x: 0,
+        y: 0
+      }
+    };
+  }
+
   get indexLastFromKeys() {
     // Get index of last slide.
     return this.keys.length - 1;
   }
 
   get swipeDirection() {
-    const xDist = this.dragStart.x - this.dragEnd.x;
-    const yDist = this.dragStart.y - this.dragEnd.y;
+    const xDist = this.state.dragStart.x - this.state.dragEnd.x;
+    const yDist = this.state.dragStart.y - this.state.dragEnd.y;
     const r = Math.atan2(yDist, xDist);
 
     const angle = this.normalizeAngle(Math.round(r * 180 / Math.PI));
@@ -119,21 +142,25 @@ class Drift extends React.Component {
   }
 
   get offset() {
+    if (!this.state.dragStart || !this.state.dragEnd) return 0;
     return this.normalizeOffset(this.state.dragEnd.x - this.state.dragStart.x);
   }
 
   get translateX() {
+    console.log(this.state.isDragging);
     return this.normalizeTranslateX(
       -100 * this.state.index + (this.state.isDragging ? this.offset : 0)
     );
   }
 
   get nextIndex() {
+    console.log("nextIndex", this.swipeDirection);
     return this.normalizeIndex(this.state.index + this.swipeDirection);
   }
 
   get isPastDragThreshold() {
-    return Math.abs(this.state.offset) > this.props.dragMax;
+    console.log(this.offset, this.state.dragStart, this.state.dragEnd);
+    return Math.abs(this.offset) > this.props.dragMax;
   }
 
   /**
@@ -150,7 +177,11 @@ class Drift extends React.Component {
 
   handleDragStart(event) {
     event.preventDefault();
-    this.setState({ isDragging: true, dragStart: this.normalizeEvent(event) });
+    this.setState({
+      isDragging: true,
+      dragStart: this.normalizeEvent(event),
+      dragEnd: this.normalizeEvent(event)
+    });
   }
 
   handleDragMove(event) {
@@ -158,15 +189,14 @@ class Drift extends React.Component {
 
     if (!event.touches) event.preventDefault();
 
-    if (this.isPastDragThreshold) {
-      this.setState({ isDragging: false, dragEnd: this.normalizeEvent(event) });
-    } else {
+    //if (this.isPastDragThreshold) {
+      //this.setState({ isDragging: false, dragEnd: this.normalizeEvent(event) });
+    //} else {
       this.setState({ dragEnd: this.normalizeEvent(event) });
-    }
+    //}
   }
 
   handleDragEnd() {
-    if (!this.state.isDragging) return;
     this.setState({ isDragging: false });
   }
 
