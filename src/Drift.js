@@ -24,7 +24,7 @@ class Drift extends React.Component {
     this.setup();
     this.bind();
     this.state = {
-      dragging: false,
+      isDragging: false,
       index: 0,
       indexLast: 0
     };
@@ -36,6 +36,17 @@ class Drift extends React.Component {
 
   componentDidMount() {
     this.setState({ indexLast: this.indexLastFromKeys });
+
+    const { container } = this;
+    if (!this.container) return;
+    container.addEventListener("transition", this.handleTransitionStart);
+    container.addEventListener("transitionend", this.handleTransitionEnd);
+  }
+
+  componentWillUnMount() {
+    const { container } = this;
+    container.removeEventListener("transition", this.handleTransitionStart);
+    container.removeEventListener("transitionend", this.handleTransitionEnd);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -47,25 +58,39 @@ class Drift extends React.Component {
       // Notify that index has changed.
       this.props.indexDidUpdate(prevState.index, this.state.index);
     }
+
+    if (this.isPastDragThreshold && !this.state.isDragging) {
+      this.setState({ index: this.nextIndex });
+    }
   }
 
   bind() {
-    this.handleDragMove = this.handleDragMove.bind(this);
-    this.handleDragStart = this.handleDragStart.bind(this);
-    this.handleDragEnd = this.handleDragEnd.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-
-    this.propsSlide = this.propsSlide.bind(this);
-    this.propsSlides = this.propsSlides.bind(this);
-    this.propsContainer = this.propsContainer.bind(this);
-
-    this.goToSlide = this.goToSlide.bind(this);
+    [
+      "handleDragMove",
+      "handleDragStart",
+      "handleDragEnd",
+      "handleKeyDown",
+      "handleTransitionStart",
+      "handleTransitionEnd",
+      "propsSlide",
+      "propsSlides",
+      "propsContainer",
+      "goToSlide"
+    ].forEach(method => (this[method] = this[method].bind(this)));
   }
 
   setup() {
     this.keys = [];
     this.dragStart = { x: 0, y: 0 };
     this.dragEnd = { x: 0, y: 0 };
+  }
+
+  handleTransitionStart() {
+    return this.setState({ isSliding: true });
+  }
+
+  handleTransitionEnd() {
+    return this.setState({ isSliding: false });
   }
 
   /**
@@ -94,12 +119,12 @@ class Drift extends React.Component {
   }
 
   get offset() {
-    return this.normalizeOffset(this.dragEnd.x - this.dragStart.x);
+    return this.normalizeOffset(this.state.dragEnd.x - this.state.dragStart.x);
   }
 
   get translateX() {
     return this.normalizeTranslateX(
-      -100 * this.state.index + (this.state.dragging ? this.state.offset : 0)
+      -100 * this.state.index + (this.state.isDragging ? this.offset : 0)
     );
   }
 
@@ -108,7 +133,7 @@ class Drift extends React.Component {
   }
 
   get isPastDragThreshold() {
-    return Math.abs(this.offset) > this.props.dragMax;
+    return Math.abs(this.state.offset) > this.props.dragMax;
   }
 
   /**
@@ -124,25 +149,25 @@ class Drift extends React.Component {
   }
 
   handleDragStart(event) {
-    this.dragStart = this.normalizeEvent(event);
-    this.setState({ dragging: true });
+    event.preventDefault();
+    this.setState({ isDragging: true, dragStart: this.normalizeEvent(event) });
   }
 
   handleDragMove(event) {
-    this.dragEnd = this.normalizeEvent(event);
+    if (!this.state.isDragging) return;
+
+    if (!event.touches) event.preventDefault();
+
     if (this.isPastDragThreshold) {
-      event.stopPropagation();
-      this.setState({ dragging: false });
+      this.setState({ isDragging: false, dragEnd: this.normalizeEvent(event) });
     } else {
-      this.setState({ offset: this.offset });
+      this.setState({ dragEnd: this.normalizeEvent(event) });
     }
   }
 
   handleDragEnd() {
-    this.setState({
-      dragging: false,
-      index: this.nextIndex
-    });
+    if (!this.state.isDragging) return;
+    this.setState({ isDragging: false });
   }
 
   /**
@@ -176,12 +201,15 @@ class Drift extends React.Component {
 
   propsContainer(style = {}) {
     return {
-      onDragStart: this.handleDragStart,
-      onDragOver: this.handleDragMove,
-      onDragEnd: this.handleDragEnd,
+      ref: node => (this.container = node),
+      onMouseDown: this.handleDragStart,
+      onMouseMove: this.handleDragMove,
+      onMouseUp: this.handleDragEnd,
+      onMouseLeave: this.handleDragEnd,
       onTouchStart: this.handleDragStart,
       onTouchMove: this.handleDragMove,
       onTouchEnd: this.handleDragEnd,
+      onTouchCancel: this.handleDragEnd,
       onKeyDown: this.handleKeyDown,
       style: {
         overflow: "hidden",

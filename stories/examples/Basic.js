@@ -1,5 +1,5 @@
 import React from "react";
-import Drift from "../../dist/Drift";
+import Drift from "../../src/Drift";
 
 export default () => (
   <Drift>
