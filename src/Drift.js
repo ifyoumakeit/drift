@@ -27,7 +27,7 @@ class Drift extends React.Component {
       isSliding: false,
       index: 0,
       indexLast: 0,
-      width: 1
+      order: []
     };
   }
 
@@ -47,6 +47,13 @@ class Drift extends React.Component {
     if (this.state.index !== nextState.index) {
       // Notify that index has changed.
       this.props.indexWillUpdate(nextState.index, this.state.index);
+      this.setState({ direction: nextState.index > this.state.index ? 1 : -1 });
+      this.container.addEventListener(
+        "transitionend",
+        this.handleTransitionEnd
+      );
+    } else if (this.state.direction !== 0) {
+      this.setState({ direction: 0 });
     }
   }
 
@@ -57,6 +64,7 @@ class Drift extends React.Component {
       "handleDragStart",
       "handleDragEnd",
       "handleKeyDown",
+      "handleTransitionEnd",
       "propsSlide",
       "propsSlides",
       "propsContainer",
@@ -75,23 +83,59 @@ class Drift extends React.Component {
 
   get nextIndex() {
     const { deltaX, index } = this.state;
-    
+    console.log(index, deltaX);
+
     if (Math.abs(deltaX) < this.props.dragMin) return index;
     else if (deltaX < 0) return index + 1;
-    else if (deltaX > 0) return this.state.index - 1;
+    else if (deltaX > 0) return index - 1;
+    else return index;
   }
 
   get transform() {
-    const { index, deltaX, isDragging } = this.state;
-    const percent = `${index * -100}%`;
+    const { index, indexLast, deltaX, isDragging, isTransforming } = this.state;
+    //if (!isDragging && !isTransforming) return `translate3d(0px, 0px, 0px)`;
+    const percent = `${(this.state.direction + 1) * -100}%`;
     const sign = deltaX > 0 ? "+" : "-";
     const offset = isDragging ? `${Math.abs(deltaX)}px` : "0px";
     return `translate3d(calc(${percent} ${sign} ${offset}), 0px, 0px)`;
   }
 
+  get duration() {
+    return this.state.direction === 0 ? "0s" : this.props.duration;
+  }
+
   /**
    * Handlers
    */
+
+  handleTransitionEnd() {
+    this.container.removeEventListener(
+      "transitionend",
+      this.handleTransitionEnd
+    );
+
+    const { index, indexLast } = this.state;
+    const indexNormal = index % (indexLast + 1);
+
+    const order = this.keys.map((key, keyIndex) => {
+      if (keyIndex === indexNormal) {
+        return 1;
+      } else if (
+        keyIndex === indexNormal + 1 ||
+        (indexNormal === indexLast && keyIndex === 0)
+      ) {
+        return 2;
+      } else if (
+        keyIndex === indexNormal - 1 ||
+        (keyIndex === indexLast && indexNormal === 0)
+      ) {
+        return 0;
+      } else {
+        return 3;
+      }
+    });
+    this.setState({ isTransforming: false, order });
+  }
 
   handleKeyDown(event) {
     if (["ArrowLeft", "ArrowUp"].includes(event.key)) {
@@ -170,7 +214,7 @@ class Drift extends React.Component {
     return {
       role: "region",
       style: {
-        transition: `${this.props.duration} transform ${this.props.easingFn}`,
+        transition: `${this.duration} transform ${this.props.easingFn}`,
         transform: this.transform,
         display: "flex",
         ...style
@@ -186,10 +230,12 @@ class Drift extends React.Component {
 
     return {
       role: "list-item",
-      "aria-hidden": this.keys[this.state.index] !== key,
+      "aria-hidden":
+        this.keys[this.state.index % (this.state.indexLast + 1)] !== key,
       style: {
         width: "100%",
         flex: "0 0 100%",
+        order: this.state.order[this.keys.indexOf(key)],
         ...style
       }
     };
