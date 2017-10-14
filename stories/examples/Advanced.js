@@ -56,7 +56,7 @@ export default () => (
           <button
             type="button"
             onClick={() => goToSlide(index - 1)}
-            disabled={index === 0}
+            
             children="Previous"
           />
           {[...Array(indexLast + 1)].map((v, i) => (
@@ -76,7 +76,7 @@ export default () => (
           <button
             type="button"
             onClick={() => goToSlide(index + 1)}
-            disabled={index >= indexLast}
+            
             children="Next"
           />
         </footer>
