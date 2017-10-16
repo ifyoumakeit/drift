@@ -1,5 +1,5 @@
 {
-  "name": "@warbyparker/drift",
+  "name": "drift",
   "version": "0.0.0-development",
   "description": "YARS > Yet Another React Slideshow",
   "main": "dist/drift.js",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/WarbyParker/drift.git"
+    "url": "https://github.com/ifyoumakeit/drift.git"
   },
   "config": {
     "commitizen": {
@@ -23,9 +23,9 @@
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/WarbyParker/drift/issues"
+    "url": "https://github.com/ifyoumakeit/drift/issues"
   },
-  "homepage": "https://github.com/WarbyParker/drift#readme",
+  "homepage": "https://github.com/ifyoumakeit/drift#readme",
   "release": {
     "verifyConditions": "condition-circle"
   },
