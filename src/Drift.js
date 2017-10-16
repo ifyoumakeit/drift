@@ -24,7 +24,7 @@ class Drift extends React.Component {
     this.setup();
     this.state = {
       isDragging: false,
-      isSliding: false,
+      isTransitioning: false,
       index: 0,
       indexLast: 0,
       order: []
@@ -47,7 +47,14 @@ class Drift extends React.Component {
     if (this.state.index !== nextState.index) {
       // Notify that index has changed.
       this.props.indexWillUpdate(nextState.index, this.state.index);
-      this.setState({ direction: nextState.index > this.state.index ? 1 : -1 });
+      this.setState({
+        direction: nextState.index > this.state.index ? 1 : -1,
+        isTransitioning: true
+      });
+      this.container.addEventListener(
+        "transitionstart",
+        this.handleTransitionStart
+      );
       this.container.addEventListener(
         "transitionend",
         this.handleTransitionEnd
@@ -65,6 +72,7 @@ class Drift extends React.Component {
       "handleDragEnd",
       "handleKeyDown",
       "handleTransitionEnd",
+      "handleTransitionStart",
       "propsSlide",
       "propsSlides",
       "propsContainer",
@@ -78,12 +86,11 @@ class Drift extends React.Component {
 
   get indexLastFromKeys() {
     // Get index of last slide.
-    return this.keys.length - 1;
+    return this.keys.length;
   }
 
   get nextIndex() {
     const { deltaX, index } = this.state;
-    console.log(index, deltaX);
 
     if (Math.abs(deltaX) < this.props.dragMin) return index;
     else if (deltaX < 0) return index + 1;
@@ -92,8 +99,8 @@ class Drift extends React.Component {
   }
 
   get transform() {
-    const { index, indexLast, deltaX, isDragging, isTransforming } = this.state;
-    //if (!isDragging && !isTransforming) return `translate3d(0px, 0px, 0px)`;
+    const { index, indexLast, deltaX, isDragging } = this.state;
+
     const percent = `${(this.state.direction + 1) * -100}%`;
     const sign = deltaX > 0 ? "+" : "-";
     const offset = isDragging ? `${Math.abs(deltaX)}px` : "0px";
@@ -107,6 +114,14 @@ class Drift extends React.Component {
   /**
    * Handlers
    */
+
+  handleTransitionStart() {
+    this.setState({ isTransitioning: true });
+    this.container.removeEventListener(
+      "transitionend",
+      this.handleTransitionStart
+    );
+  }
 
   handleTransitionEnd() {
     this.container.removeEventListener(
@@ -134,10 +149,12 @@ class Drift extends React.Component {
         return 3;
       }
     });
-    this.setState({ isTransforming: false, order });
+    this.setState({ isTransitioning: false, order });
   }
 
   handleKeyDown(event) {
+    console.log(this.state.isTransitioning);
+    if (this.state.isTransitioning) return;
     if (["ArrowLeft", "ArrowUp"].includes(event.key)) {
       this.goToSlide(this.state.index - 1);
     } else if (["ArrowRight", "ArrowDown"].includes(event.key)) {
@@ -146,6 +163,7 @@ class Drift extends React.Component {
   }
 
   handleDragStart(event) {
+    if (this.state.isTransitioning) return;
     event.preventDefault();
 
     this.setState({
@@ -156,6 +174,7 @@ class Drift extends React.Component {
 
   handleDragMove(event) {
     if (!this.state.isDragging) return;
+    if (this.state.isTransitioning) return;
     if (!event.touches) event.preventDefault();
 
     const { x, y } = this.getClientPosition(event);
@@ -169,6 +188,7 @@ class Drift extends React.Component {
 
   handleDragEnd(event) {
     if (!this.state.isDragging) return;
+    if (this.state.isTransitioning) return;
 
     this.setState({
       deltaX: this.getClientPosition(event).x - this.state.dragStart.x,
@@ -254,7 +274,8 @@ class Drift extends React.Component {
       propsContainer: this.propsContainer,
       propsSlide: this.propsSlide,
       propsSlides: this.propsSlides,
-      goToSlide: this.goToSlide
+      goToSlide: this.goToSlide,
+      slideNum: this.state.index % (this.state.indexLast + 1)
     });
   }
 }
