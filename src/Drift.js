@@ -86,7 +86,7 @@ class Drift extends React.Component {
 
   get indexLastFromKeys() {
     // Get index of last slide.
-    return this.keys.length;
+    return this.keys.length - 1;
   }
 
   get nextIndex() {
@@ -275,7 +275,7 @@ class Drift extends React.Component {
       propsSlide: this.propsSlide,
       propsSlides: this.propsSlides,
       goToSlide: this.goToSlide,
-      slideNum: this.state.index % (this.state.indexLast + 1)
+      slideNum: this.state.index %( this.state.indexLast + 1)
     });
   }
 }
